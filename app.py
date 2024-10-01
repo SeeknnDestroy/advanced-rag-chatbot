@@ -180,8 +180,12 @@ def main():
         # Get assistant response
         with st.chat_message("assistant"):
             response = get_openai_response(client, st.session_state.openai_model, api_messages)
-            response_json = json.loads(response)
-            response_str = response_json.get("response")
+            try:
+                response_json = json.loads(response)
+                response_str = response_json.get("response")
+            except json.JSONDecodeError:
+                # If response is not in JSON format, display the raw response
+                response_str = response
             st.write(response_str)
         end_time = time.time()
         logger.info(f"API request completed in {end_time - start_time:.2f} seconds")

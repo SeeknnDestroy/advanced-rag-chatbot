@@ -1,0 +1,149 @@
+# Bi'Talih Bilgi Bankası
+
+## Para Yatırma İşlemleri
+
+### Para Yatırma Yöntemleri
+
+Bi'Talih hesabınıza para yatırmak için aşağıdaki yöntemleri kullanabilirsiniz (hangi yöntemi tercih edeceğini kullanıcıya sor, sadece o yöntem hakkında bilgi ver):
+
+1. **Havale/EFT/Fast Yöntemleri**
+   - Kendi adınıza ait bireysel vadesiz banka hesaplarınızdan Havale/EFT/Fast işlemleriyle para yatırabilirsiniz.
+   - İşlemler 10-15 dakika içinde hesabınıza yansır.
+   -
+
+2. **Şans Oyunları Ödemesi**
+   - Anlaşmalı bankalar üzerinden 7/24 Şans Oyunları Ödemesi yapabilirsiniz.
+   - İşlem adımları bankalara göre aşağıda belirtilmiştir.
+
+### Havale/EFT/Fast ile Para Yatırma
+
+Aşağıdaki banka bilgilerini kullanarak Bi'Talih hesabınıza para transferi yapabilirsiniz:
+
+**Garanti Bankası**
+
+- **IBAN:** TR38 0006 2000 3400 0006 2917 94
+- **Alıcı:** Platform Şans Oyunları A.Ş.
+- **Açıklama:** Kendi T.C. kimlik numaranızı giriniz.
+
+> **Not:** Bu yöntemle yapılan işlemler 10-15 dakika içinde hesabınıza yansımaktadır.
+
+### Şans Oyunları Ödemesi ile Para Yatırma
+
+Anlaşmalı bankaların internet veya mobil bankacılık uygulamalarını kullanarak para yatırabilirsiniz.
+
+#### Enpara
+
+- **İnternet Bankacılığı:**
+  - Transfer/Ödeme > Şans Oyunları > Bi'Talih > Üye Numaranız > Tutar
+- **Mobil Bankacılık:**
+  - Ödemeler > Şans Oyunları > Bi'Talih > Üye Numaranız > Tutar
+
+#### Denizbank
+
+- **İnternet Bankacılığı:**
+  - Fatura ve Ödemeler > Diğer > Bi'Talih > Üye Numaranız > Tutar
+- **Mobil Bankacılık:**
+  - Fatura ve Ödemeler > Ödemeler > Şans Oyunları > Bi'Talih > Tutar
+- **ATM'den Kartlı İşlem:**
+  - Para Yatırma > Şans Oyunları > Bi'Talih > Üye Numaranız > Tutar
+
+#### VakıfBank
+
+- **İnternet Bankacılığı:**
+  - Ödemeler > Diğer Ödemeler > Şans Oyunları > Bi'Talih > Üye Numaranız > Tutar
+- **Mobil Bankacılık:**
+  - Tüm İşlemler > Ödemeler > Şans Oyunları > Bi'Talih > Üye Numaranız > Tutar
+
+#### Garanti BBVA
+
+- **İnternet Bankacılığı:**
+  - Ödemeler > Şans Oyunları > Bi'Talih > Üye Numaranız > Tutar
+- **Mobil Bankacılık:**
+  - İşlemler > Ödemeler > Şans Oyunları > Bi'Talih > Üye Numaranız > Tutar
+- **ATM'den Kartlı İşlem:**
+  - Ödemeler > Şans Oyunları > Bi'Talih > Üye Numaranız > Tutar
+
+#### QNB Finansbank
+
+- **İnternet Bankacılığı:**
+  - Tüm İşlemler > Ödemeler > Şans Oyunları > Bi'Talih > Üye Numaranız > Tutar
+- **Mobil Bankacılık:**
+  - Ödemeler > Şans Oyunları > Bi'Talih > Üye Numaranız > Tutar
+- **ATM'den Kartlı İşlem:**
+  - Şans Oyunları > Bi'Talih > Üye Numaranız > Tutar
+- **ATM'den Kartsız İşlem:**
+  - Şans Oyunları > Bi'Talih > Üye Numaranız > T.C. Kimlik Numaranız > Tutar > Cep Telefonu Numaranız
+
+#### Ziraat Bankası
+
+- **İnternet Bankacılığı:**
+  - İşlem Yap > OGS & Diğer Ödemeler > Şans Oyunları > Bi'Talih > Üye Numaranız > Tutar
+- **Mobil Bankacılık:**
+  - Ödemeler > Şans Oyunları > Bi'Talih > Üye Numaranız > Tutar
+- **ATM'den Kartlı İşlem:**
+  - Ödeme İşlemleri > Diğer Ödemeler > Şans Oyunları > Bi'Talih > Üye Numaranız > Tutar
+
+#### Akbank
+
+- **İnternet Bankacılığı:**
+  - Fatura ve Diğer Ödemeler > Şans Oyunları > Bi'Talih > Üye Numaranız > Tutar
+- **Mobil Bankacılık:**
+  - Ödeme Yap > Şans Oyunları > Bi'Talih > Üye Numaranız > Tutar
+- **ATM'den Kartlı İşlem:**
+  - Ödemeler > Şans Oyunları > Bi'Talih > Üye Numaranız > Tutar
+- **ATM'den Kartsız İşlem:**
+  - Şans Oyunları > Bi'Talih > T.C. Kimlik Numaranız > Cep Telefonu Numaranız > Üye Numaranız > Tutar
+
+### Sık Sorulan Sorular
+
+- **Havale/EFT/Fast yöntemiyle para yatırdım, hesabıma geçmedi. Neden?**
+  - İşlemler 5-15 dakika arasında gerçekleşmektedir. Daha hızlı işlem için anlaşmalı bankaların Şans Oyunları Ödemesi yöntemini kullanabilirsiniz.
+
+## Para Çekme İşlemleri
+
+Bi'Talih hesabınızdaki bakiyeyi kendi adınıza açılmış vadesiz mevduat hesabınıza çekebilirsiniz.
+
+### Para Çekme Adımları
+
+1. **IBAN Numaranız Üyeliğinizde Kayıtlı mı?**
+
+   - **Evet:**
+     - **Hesabım > Para Çek** alanından çekmek istediğiniz tutarı yazarak işlemi tamamlayabilirsiniz.
+   - **Hayır:**
+     - **Hesabım > Para Çek** alanından IBAN numaranızı kaydederek para çekme işlemini gerçekleştirebilirsiniz.
+
+2. **Anlaşmalı Bankalar:**
+   - Anlaşmalı bankalar üzerinden 7/24 para çekme işlemi yapabilirsiniz.
+
+3. **Anlaşmalı Olmayan Bankalar:**
+   - İşlemler mesai saatleri içinde hesabınıza aktarılır.
+
+## Kampanyalar
+
+### Kampanyalara Nasıl Katılabilirim?
+
+- Kampanya katılım şartlarını sağlayan tüm kuponlarınız otomatik olarak değerlendirmeye alınır.
+
+### Kampanyadan Kazandığım Tutar Hesabıma Neden Yansımadı?
+
+- Kazanılan tutarlar bir sonraki gün içerisinde üyeliklere yüklenmektedir.
+
+## Mobil Uygulama
+
+### Bi'Talih Mobil Uygulamasını Nasıl İndirebilirim?
+
+- Cihazınıza uygun mobil uygulamamızı [https://indir.bitalih.com/](https://indir.bitalih.com/) adresinden indirebilirsiniz.
+
+## Üyelik İşlemleri
+
+### Üyeliğimi Kalıcı Olarak İptal Ettim. Nasıl Tekrar Aktif Edebilirim?
+
+- Kalıcı üyelik iptalleri yasal mevzuat gereği sadece yazılı dilekçe ile açılmaktadır.
+- Ayrıca, üyelik iptali sırasında belirttiğiniz iptal sebebinin ortadan kalkmış olması gerekmektedir.
+
+## Diğer Bilgiler
+
+- **Bi'Talih hesabındaki parayı nasıl çekebilirim?**
+  - **Hesabım > Para Çekme** alanından IBAN numaranızı kaydederek para çekme işlemi gerçekleştirebilirsiniz.
+  - Anlaşmalı bankalar üzerinden 7/24 para çekme işlemi yapabilirsiniz.
+  - Anlaşmalı olmayan bankalarda işlemler mesai saatleri içinde gerçekleşir.
