@@ -3,6 +3,9 @@ from dotenv import load_dotenv
 import streamlit as st
 from openai import OpenAI
 from typing import List, Dict, Any
+import logging
+from pprint import pformat
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -11,6 +14,14 @@ load_dotenv()
 SYSTEM_PROMPT_FILE = "system_prompt.txt"
 EXTERNAL_DOC_FILE = "external_doc.txt"
 DEFAULT_MODEL = "gpt-4o-mini"
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[logging.StreamHandler()]
+)
+logger = logging.getLogger(__name__)
 
 def load_system_prompt(file_path: str) -> str:
     """
@@ -55,7 +66,9 @@ def initialize_session(state: Any, system_prompt: str) -> None:
         system_prompt (str): The system prompt to initialize messages.
     """
     if "messages" not in state:
-        state.messages = [{"role": "system", "content": system_prompt}]
+        state.messages = []
+    if "system_prompt" not in state:
+        state.system_prompt = system_prompt
     if "openai_model" not in state:
         state.openai_model = DEFAULT_MODEL
 
@@ -106,6 +119,17 @@ def get_openai_response(client: OpenAI, model: str, messages: List[Dict[str, str
     except Exception as e:
         st.error(f"Error communicating with OpenAI: {e}")
         return "Sorry, I couldn't process that."
+    
+def log_api_request(api_messages: List[Dict[str, str]]) -> None:
+    """
+    Log the full chat history to the terminal.
+
+    Args:
+        api_messages (List[Dict[str, str]]): List of messages including system prompt
+    """
+    logger.info("API Request Chat History:")
+    for msg in api_messages:
+        logger.info(f"{msg['role'].upper()}:\n{msg['content']}")
 
 def main():
     """
@@ -141,18 +165,24 @@ def main():
             st.markdown(user_input)
 
         # Prepare messages for OpenAI API
-        # Clone the message history to avoid mutating the session state
-        api_messages = []
-        for msg in st.session_state.messages:
-            if msg["role"] == "user":
-                formatted_content = format_user_message_with_doc(external_document, msg["content"])
-                api_messages.append({"role": "user", "content": formatted_content})
-            else:
-                api_messages.append(msg)
+        # Include system prompt as the first message
+        api_messages = [{"role": "system", "content": st.session_state.system_prompt}]
+
+        # Add all previous messages except the latest user message
+        for msg in st.session_state.messages[:-1]:
+            api_messages.append({"role": msg["role"], "content": msg["content"]})
+
+        # Format only the latest user message with the external document
+        formatted_latest_user = format_user_message_with_doc(external_document, st.session_state.messages[-1]["content"])
+        api_messages.append({"role": "user", "content": formatted_latest_user})
+
+        # Log the API request messages
+        log_api_request(api_messages)
 
         # Get assistant response
         with st.chat_message("assistant"):
             response = get_openai_response(client, st.session_state.openai_model, api_messages)
+
         # Append assistant response to chat history
         st.session_state.messages.append({"role": "assistant", "content": response})
 
