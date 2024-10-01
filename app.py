@@ -1,39 +1,160 @@
-from openai import OpenAI
-import streamlit as st
-from dotenv import load_dotenv
 import os
+from dotenv import load_dotenv
+import streamlit as st
+from openai import OpenAI
+from typing import List, Dict, Any
 
+# Load environment variables from .env file
 load_dotenv()
 
-st.title("ChatGPT-like clone")
+# Constants
+SYSTEM_PROMPT_FILE = "system_prompt.txt"
+EXTERNAL_DOC_FILE = "external_doc.txt"
+DEFAULT_MODEL = "gpt-4o-mini"
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+def load_system_prompt(file_path: str) -> str:
+    """
+    Load the system prompt from a text file.
 
-client = OpenAI(api_key=OPENAI_API_KEY)
+    Args:
+        file_path (str): Path to the system prompt file.
 
-if "openai_model" not in st.session_state:
-    st.session_state["openai_model"] = "gpt-4o-mini"
+    Returns:
+        str: The system prompt.
+    """
+    try:
+        with open(file_path, "r", encoding="utf-8") as file:
+            return file.read().strip()
+    except FileNotFoundError:
+        st.error(f"System prompt file '{file_path}' not found.")
+        return ""
 
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+def load_external_document(file_path: str) -> str:
+    """
+    Load external document content from a text file.
 
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
+    Args:
+        file_path (str): Path to the external document file.
 
-if prompt := st.chat_input("What is up?"):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
+    Returns:
+        str: The content of the external document.
+    """
+    try:
+        with open(file_path, "r", encoding="utf-8") as file:
+            return file.read().strip()
+    except FileNotFoundError:
+        st.error(f"External document file '{file_path}' not found.")
+        return ""
 
-    with st.chat_message("assistant"):
+def initialize_session(state: Any, system_prompt: str) -> None:
+    """
+    Initialize session state variables.
+
+    Args:
+        state (Any): Streamlit session state.
+        system_prompt (str): The system prompt to initialize messages.
+    """
+    if "messages" not in state:
+        state.messages = [{"role": "system", "content": system_prompt}]
+    if "openai_model" not in state:
+        state.openai_model = DEFAULT_MODEL
+
+def display_chat_history(messages: List[Dict[str, str]]) -> None:
+    """
+    Display the chat history in the Streamlit app.
+
+    Args:
+        messages (List[Dict[str, str]]): List of messages with roles and content.
+    """
+    for message in messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+def format_user_message_with_doc(document: str, user_message: str) -> str:
+    """
+    Format the user message by embedding the external document within XML delimiters.
+
+    Args:
+        document (str): The external document content.
+        user_message (str): The latest user message.
+
+    Returns:
+        str: Formatted user message.
+    """
+    return f"<content>\n{document}\n</content>\n<user>\n{user_message}\n</user>"
+
+def get_openai_response(client: OpenAI, model: str, messages: List[Dict[str, str]]) -> str:
+    """
+    Get the assistant's response from OpenAI API.
+
+    Args:
+        client (OpenAI): OpenAI client instance.
+        model (str): The model to use for completion.
+        messages (List[Dict[str, str]]): List of messages for context.
+
+    Returns:
+        str: Assistant's response.
+    """
+    try:
         stream = client.chat.completions.create(
-            model=st.session_state["openai_model"],
-            messages=[
-                {"role": m["role"], "content": m["content"]}
-                for m in st.session_state.messages
-            ],
+            model=model,
+            messages=messages,
             stream=True,
         )
         response = st.write_stream(stream)
-    st.session_state.messages.append({"role": "assistant", "content": response})
+        return response
+    except Exception as e:
+        st.error(f"Error communicating with OpenAI: {e}")
+        return "Sorry, I couldn't process that."
+
+def main():
+    """
+    Main function to run the Streamlit ChatGPT-like application.
+    """
+    st.set_page_config(page_title="ChatGPT Clone", page_icon="💬")
+    st.title("ChatGPT-like Clone")
+
+    # Load system prompt and external document
+    system_prompt = load_system_prompt(SYSTEM_PROMPT_FILE)
+    external_document = load_external_document(EXTERNAL_DOC_FILE)
+
+    # Initialize session state
+    initialize_session(st.session_state, system_prompt)
+
+    # Initialize OpenAI client
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+    if not OPENAI_API_KEY:
+        st.error("OpenAI API key not found. Please set OPENAI_API_KEY in the .env file.")
+        return
+
+    client = OpenAI(api_key=OPENAI_API_KEY)
+
+    # Display chat history
+    display_chat_history(st.session_state.messages)
+
+    # Handle user input
+    user_input = st.chat_input("What would you like to discuss?")
+    if user_input:
+        # Append user message to chat history
+        st.session_state.messages.append({"role": "user", "content": user_input})
+        with st.chat_message("user"):
+            st.markdown(user_input)
+
+        # Prepare messages for OpenAI API
+        # Clone the message history to avoid mutating the session state
+        api_messages = []
+        for msg in st.session_state.messages:
+            if msg["role"] == "user":
+                formatted_content = format_user_message_with_doc(external_document, msg["content"])
+                api_messages.append({"role": "user", "content": formatted_content})
+            else:
+                api_messages.append(msg)
+
+        # Get assistant response
+        with st.chat_message("assistant"):
+            response = get_openai_response(client, st.session_state.openai_model, api_messages)
+        # Append assistant response to chat history
+        st.session_state.messages.append({"role": "assistant", "content": response})
+
+if __name__ == "__main__":
+    main()
