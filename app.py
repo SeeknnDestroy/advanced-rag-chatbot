@@ -4,8 +4,8 @@ import streamlit as st
 from openai import OpenAI
 from typing import List, Dict, Any
 import logging
-from pprint import pformat
-
+import time
+import json
 
 # Load environment variables from .env file
 load_dotenv()
@@ -98,7 +98,7 @@ def format_user_message_with_doc(document: str, user_message: str) -> str:
 
 def get_openai_response(client: OpenAI, model: str, messages: List[Dict[str, str]]) -> str:
     """
-    Get the assistant's response from OpenAI API.
+    Get the assistant's response from OpenAI API and extract the 'response' field.
 
     Args:
         client (OpenAI): OpenAI client instance.
@@ -106,20 +106,20 @@ def get_openai_response(client: OpenAI, model: str, messages: List[Dict[str, str
         messages (List[Dict[str, str]]): List of messages for context.
 
     Returns:
-        str: Assistant's response.
+        str: Assistant's 'response' field.
     """
     try:
-        stream = client.chat.completions.create(
+        response = client.chat.completions.create(
             model=model,
             messages=messages,
-            stream=True,
+            stream=False,
         )
-        response = st.write_stream(stream)
+        response = response.choices[0].message.content.strip()
         return response
     except Exception as e:
-        st.error(f"Error communicating with OpenAI: {e}")
-        return "Sorry, I couldn't process that."
-    
+        logger.error(f"OpenAI API request failed: {e}")
+        return "Sorry, something went wrong. Please try again."
+
 def log_api_request(api_messages: List[Dict[str, str]]) -> None:
     """
     Log the full chat history to the terminal.
@@ -176,15 +176,22 @@ def main():
         formatted_latest_user = format_user_message_with_doc(external_document, st.session_state.messages[-1]["content"])
         api_messages.append({"role": "user", "content": formatted_latest_user})
 
-        # Log the API request messages
-        log_api_request(api_messages)
-
+        start_time = time.time()
         # Get assistant response
         with st.chat_message("assistant"):
             response = get_openai_response(client, st.session_state.openai_model, api_messages)
+            response_json = json.loads(response)
+            response_str = response_json.get("response")
+            st.write(response_str)
+        end_time = time.time()
+        logger.info(f"API request completed in {end_time - start_time:.2f} seconds")
 
         # Append assistant response to chat history
-        st.session_state.messages.append({"role": "assistant", "content": response})
+        st.session_state.messages.append({"role": "assistant", "content": response_str})
+
+        # Log full chat history to terminal
+        api_messages.append({"role": "assistant", "content": response})
+        log_api_request(api_messages)
 
 if __name__ == "__main__":
     main()
