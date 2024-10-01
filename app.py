@@ -146,7 +146,7 @@ def main():
     initialize_session(st.session_state, system_prompt)
 
     # Initialize OpenAI client
-    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY")
     if not OPENAI_API_KEY:
         st.error("OpenAI API key not found. Please set OPENAI_API_KEY in the .env file.")
         return
