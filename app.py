@@ -2,9 +2,9 @@ import os
 from dotenv import load_dotenv
 import streamlit as st
 from openai import OpenAI
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Literal
 import logging
-import time
+import tempfile
 import json
 
 # Load environment variables from .env file
@@ -14,6 +14,8 @@ load_dotenv()
 SYSTEM_PROMPT_FILE = "system_prompt.txt"
 EXTERNAL_DOC_FILE = "external_doc.txt"
 DEFAULT_MODEL = "gpt-4o"
+TTS_MODELS = ["tts-1", "tts-1-hd"]
+VOICE_OPTIONS = ["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
 
 # Configure logging
 logging.basicConfig(
@@ -71,43 +73,62 @@ def initialize_session(state: Any, system_prompt: str) -> None:
         state.system_prompt = system_prompt
     if "openai_model" not in state:
         state.openai_model = DEFAULT_MODEL
+    if "tts_data" not in state:
+        state.tts_data = {}  # Stores audio bytes indexed by message index
 
-def display_chat_history(messages: List[Dict[str, str]]) -> None:
-    """
-    Display the chat history in the Streamlit app.
-
-    Args:
-        messages (List[Dict[str, str]]): List of messages with roles and content.
-    """
-    for message in messages:
+def display_chat_history(messages: List[Dict[str, str]], tts_data: Dict[int, bytes]) -> None:
+    """Display the chat history in the Streamlit app with TTS options."""
+    for idx, message in enumerate(messages):
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
+            # Display existing audio if available
+            if message["role"] == "assistant" and idx in tts_data:
+                st.audio(tts_data[idx], format="audio/mp3", start_time=0)
+        
+        # If the message is from the assistant, display TTS options
+        if message["role"] == "assistant":
+            with st.expander("🔊 Text-to-Speech Options"):
+                # Unique keys for each assistant message's TTS
+                voice_key = f"voice_{idx}"
+                model_key = f"model_{idx}"
+                button_key = f"button_{idx}"
+                
+                selected_voice = st.selectbox(
+                    "Choose a voice:",
+                    options=VOICE_OPTIONS,
+                    key=voice_key
+                )
+                
+                selected_model = st.selectbox(
+                    "Choose TTS model:",
+                    options=TTS_MODELS,
+                    key=model_key
+                )
+                
+                generate_button = st.button(
+                    "Generate Speech",
+                    key=button_key
+                )
+                
+                if generate_button:
+                    # Generate speech using TTS
+                    with st.spinner("Generating speech..."):
+                        tts_response = get_tts_response(selected_model, selected_voice, message["content"])
+                    
+                    if tts_response:
+                        # Store the audio bytes in session state
+                        tts_data[idx] = tts_response
+                        st.success("Speech generated successfully!")
+                        st.audio(tts_response, format="audio/mp3", start_time=0)
+                    else:
+                        st.error("Failed to generate speech.")
 
 def format_user_message_with_doc(document: str, user_message: str) -> str:
-    """
-    Format the user message by embedding the external document within XML delimiters.
-
-    Args:
-        document (str): The external document content.
-        user_message (str): The latest user message.
-
-    Returns:
-        str: Formatted user message.
-    """
+    """Format the user message by embedding the external document within XML delimiters."""
     return f"<content>\n{document}\n</content>\n<user>\n{user_message}\n</user>"
 
 def get_openai_response(client: OpenAI, model: str, messages: List[Dict[str, str]]) -> str:
-    """
-    Get the assistant's response from OpenAI API and extract the 'response' field.
-
-    Args:
-        client (OpenAI): OpenAI client instance.
-        model (str): The model to use for completion.
-        messages (List[Dict[str, str]]): List of messages for context.
-
-    Returns:
-        str: Assistant's 'response' field.
-    """
+    """Get the assistant's response from OpenAI API and extract the 'response' field."""
     try:
         response = client.chat.completions.create(
             model=model,
@@ -119,6 +140,30 @@ def get_openai_response(client: OpenAI, model: str, messages: List[Dict[str, str
     except Exception as e:
         logger.error(f"OpenAI API request failed: {e}")
         return "Sorry, something went wrong. Please try again."
+
+def get_tts_response(model: Literal["tts-1", "tts-1-hd"], voice: Literal["alloy", "echo", "fable", "onyx", "nova", "shimmer"], text: str) -> bytes:
+    """Generate speech using OpenAI's TTS model."""
+    try:
+        client = OpenAI(api_key=os.getenv("OPENAI_API_KEY") or st.secrets.get("OPENAI_API_KEY"))
+        tts_response = client.audio.speech.create(
+            model=model,
+            voice=voice,
+            input=text,
+        )
+        # Use a temporary file to handle the audio data
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
+            tmp_filename = tmp_file.name
+        # Write to the temporary file
+        tts_response.write_to_file(tmp_filename)
+        # Read the audio data into memory
+        with open(tmp_filename, "rb") as f:
+            audio_bytes = f.read()
+        # Clean up the temporary file
+        os.remove(tmp_filename)
+        return audio_bytes
+    except Exception as e:
+        logger.error(f"TTS API request failed: {e}")
+        return None
 
 def log_api_request(api_messages: List[Dict[str, str]]) -> None:
     """
@@ -154,7 +199,7 @@ def main():
     client = OpenAI(api_key=OPENAI_API_KEY)
 
     # Display chat history
-    display_chat_history(st.session_state.messages)
+    display_chat_history(st.session_state.messages, st.session_state.tts_data)
 
     # Handle user input
     user_input = st.chat_input("What would you like to discuss?")
