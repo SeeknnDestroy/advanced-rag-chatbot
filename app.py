@@ -67,8 +67,6 @@ def initialize_session(state: Any, system_prompt: str) -> None:
     """
     if "messages" not in state:
         state.messages = []
-    if "api_messages" not in state:
-        state.api_messages = []
     if "system_prompt" not in state:
         state.system_prompt = system_prompt
     if "openai_model" not in state:
@@ -163,7 +161,6 @@ def main():
     if user_input:
         # Append user message to chat history
         st.session_state.messages.append({"role": "user", "content": user_input})
-        st.session_state.api_messages.append({"role": "user", "content": user_input})
         with st.chat_message("user"):
             st.markdown(user_input)
 
@@ -172,7 +169,7 @@ def main():
         api_messages = [{"role": "system", "content": st.session_state.system_prompt}]
 
         # Add all previous messages except the latest user message
-        for msg in st.session_state.api_messages[:-1]:
+        for msg in st.session_state.messages[:-1]:
             api_messages.append({"role": msg["role"], "content": msg["content"]})
 
         # Format only the latest user message with the external document
@@ -194,8 +191,8 @@ def main():
         st.session_state.messages.append({"role": "assistant", "content": response_str})
 
         # Log full chat history to terminal
-        st.session_state.api_messages.append({"role": "assistant", "content": response})
-        log_api_request(st.session_state.api_messages)
+        api_messages.append({"role": "assistant", "content": response})
+        log_api_request(api_messages)
 
 if __name__ == "__main__":
     main()
