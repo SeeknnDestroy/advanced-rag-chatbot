@@ -13,7 +13,7 @@ load_dotenv()
 # Constants
 SYSTEM_PROMPT_FILE = "system_prompt.txt"
 EXTERNAL_DOC_FILE = "external_doc.txt"
-DEFAULT_MODEL = "gpt-4o-mini"
+DEFAULT_MODEL = "gpt-4o"
 
 # Configure logging
 logging.basicConfig(
@@ -67,6 +67,8 @@ def initialize_session(state: Any, system_prompt: str) -> None:
     """
     if "messages" not in state:
         state.messages = []
+    if "api_messages" not in state:
+        state.api_messages = []
     if "system_prompt" not in state:
         state.system_prompt = system_prompt
     if "openai_model" not in state:
@@ -161,6 +163,7 @@ def main():
     if user_input:
         # Append user message to chat history
         st.session_state.messages.append({"role": "user", "content": user_input})
+        st.session_state.api_messages.append({"role": "user", "content": user_input})
         with st.chat_message("user"):
             st.markdown(user_input)
 
@@ -169,14 +172,13 @@ def main():
         api_messages = [{"role": "system", "content": st.session_state.system_prompt}]
 
         # Add all previous messages except the latest user message
-        for msg in st.session_state.messages[:-1]:
+        for msg in st.session_state.api_messages[:-1]:
             api_messages.append({"role": msg["role"], "content": msg["content"]})
 
         # Format only the latest user message with the external document
         formatted_latest_user = format_user_message_with_doc(external_document, st.session_state.messages[-1]["content"])
         api_messages.append({"role": "user", "content": formatted_latest_user})
 
-        start_time = time.time()
         # Get assistant response
         with st.chat_message("assistant"):
             response = get_openai_response(client, st.session_state.openai_model, api_messages)
@@ -187,15 +189,13 @@ def main():
                 # If response is not in JSON format, display the raw response
                 response_str = response
             st.write(response_str)
-        end_time = time.time()
-        logger.info(f"API request completed in {end_time - start_time:.2f} seconds")
 
         # Append assistant response to chat history
         st.session_state.messages.append({"role": "assistant", "content": response_str})
 
         # Log full chat history to terminal
-        api_messages.append({"role": "assistant", "content": response})
-        log_api_request(api_messages)
+        st.session_state.api_messages.append({"role": "assistant", "content": response})
+        log_api_request(st.session_state.api_messages)
 
 if __name__ == "__main__":
     main()
